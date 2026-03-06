@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>OCR Biology A Level Progress Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: rgba(102, 126, 234, 0.3);
+        }
+        
+        html {
+            -webkit-text-size-adjust: 100%;
+            font-size: 16px;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 0.9em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.85em;
+            border-left: 3px solid #2196f3;
+        }
+        
+        .progress-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .progress-bar-container {
+            background: rgba(255,255,255,0.3);
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #4caf50;
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 0.85em;
+        }
+        
+        .stat {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: white;
+            background: #667eea;
+            cursor: pointer;
+            min-height: 44px;
+            flex: 1 1 auto;
+            min-width: 120px;
+        }
+        
+        .btn-secondary {
+            background: #f44336;
+        }
+        
+        .btn-tertiary {
+            background: #4caf50;
+        }
+        
+        .module {
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .module-header {
+            padding: 15px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 60px;
+        }
+        
+        .module-header:active {
+            background: #f5f5f5;
+        }
+        
+        .module-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .toggle-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-icon.open {
+            transform: rotate(180deg);
+        }
+        
+        .module-stats {
+            display: flex;
+            gap: 8px;
+            font-size: 0.75em;
+        }
+        
+        .module-stat {
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .stat-complete {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        .stat-practice {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+        
+        .stat-review {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+        
+        .module-content {
+            display: none;
+            padding: 10px;
+        }
+        
+        .module-content.open {
+            display: block;
+        }
+        
+        .topic {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .topic-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+        
+        .statement {
+            background: #f9f9f9;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .statement.complete {
+            background: #f1f8f4;
+            border-color: #4caf50;
+        }
+        
+        .statement.practice {
+            background: #fffef7;
+            border-color: #ff9800;
+        }
+        
+        .statement.review {
+            background: #fff5f5;
+            border-color: #f44336;
+        }
+        
+        .statement-text {
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        
+        .status-btns {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .status-btn {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 600;
+            cursor: pointer;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .status-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .status-btn.active-complete {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+        
+        .status-btn.active-practice {
+            background: #ff9800;
+            color: white;
+            border-color: #ff9800;
+        }
+        
+        .status-btn.active-review {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+        
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+            font-size: 0.85em;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        
+        @media (min-width: 600px) {
+            .container {
+                padding: 30px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .legend {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 OCR Biology A Level Tracker</h1>
+        <div class="subtitle">Essential Learning Statements • H420</div>
+        
+        <div class="info-box">
+            <strong>💡 How to use:</strong> Tap Complete ✅, Practice ⚠️, or Review ❌ for each statement. Progress saves automatically!
+        </div>
+
+        <div class="progress-section">
+            <strong>📊 Your Progress</strong>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar">0%</div>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-number" id="completeCount">0</span>
+                    <span>Complete</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number" id="practiceCount">0</span>
+                    <span>Practice</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number" id="reviewCount">0</span>
+                    <span>Review</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number" id="notStartedCount">0</span>
+                    <span>Not Started</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="expandAll()">📂 Expand All</button>
+            <button class="btn" onclick="collapseAll()">📁 Collapse All</button>
+            <button class="btn btn-tertiary" onclick="exportData()">💾 Export</button>
+            <button class="btn btn-secondary" onclick="resetAll()">🔄 Reset</button>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4caf50;"></div>
+                <span><strong>Complete:</strong> Confident</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff9800;"></div>
+                <span><strong>Practice:</strong> Need work</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f44336;"></div>
+                <span><strong>Review:</strong> Need study</span>
+            </div>
+        </div>
+
+        <div id="modules"></div>
+    </div>
+
+    <script>
+        const data = {
+            "Module 2: Foundations in Biology": {
+                "2.1.1 Cell Structure": [
+                    "I can use a light microscope and calculate magnification: magnification = image size ÷ object size",
+                    "I understand magnification vs resolution and how electron microscopes differ from light microscopes",
+                    "I know the structure and function of major organelles: nucleus, mitochondria, ribosomes, RER, SER, Golgi, lysosomes, chloroplasts",
+                    "I can identify organelles in electron micrographs",
+                    "I can explain how organelles work together in protein production and secretion",
+                    "I can compare prokaryotic and eukaryotic cell structure"
+                ],
+                "2.1.2 Biological Molecules": [
+                    "I can explain hydrogen bonding in water and relate water's properties to biological functions",
+                    "I understand condensation and hydrolysis reactions in polymers",
+                    "I know the difference between α-glucose and β-glucose",
+                    "I can explain glycosidic bonds in disaccharides (maltose, sucrose, lactose) and polysaccharides",
+                    "I can relate structures of starch, glycogen, and cellulose to their functions",
+                    "I know the structure of triglycerides and phospholipids",
+                    "I understand the four levels of protein structure and types of bonds",
+                    "I can describe haemoglobin as a conjugated protein",
+                    "I can carry out biochemical tests: biuret, Benedict's, iodine, emulsion",
+                    "I can use chromatography and calculate Rf values"
+                ],
+                "2.1.3 Nucleotides & DNA": [
+                    "I know DNA structure: complementary base pairing, antiparallel strands, double helix",
+                    "I can explain semi-conservative DNA replication (helicase, DNA polymerase)",
+                    "I understand the genetic code: triplet, non-overlapping, degenerate, universal",
+                    "I can explain transcription (DNA → mRNA) and translation (mRNA → protein)",
+                    "I understand roles of mRNA, tRNA, and rRNA in protein synthesis",
+                    "I know ATP structure and its role as energy currency"
+                ],
+                "2.1.4 Enzymes": [
+                    "I can explain lock and key and induced-fit hypotheses",
+                    "I understand how enzymes lower activation energy",
+                    "I can explain effects of temperature, pH, enzyme concentration, and substrate concentration",
+                    "I understand competitive and non-competitive inhibition",
+                    "I can carry out enzyme practical investigations"
+                ],
+                "2.1.5 Membranes": [
+                    "I can explain the fluid mosaic model of membrane structure",
+                    "I understand roles of phospholipids, proteins, cholesterol, and glycoproteins",
+                    "I can explain diffusion, facilitated diffusion, active transport, endocytosis, exocytosis",
+                    "I can explain osmosis in terms of water potential gradients",
+                    "I can investigate factors affecting membrane permeability"
+                ],
+                "2.1.6 Cell Division": [
+                    "I understand the cell cycle: interphase (G1, S, G2), mitosis, cytokinesis",
+                    "I can describe mitosis stages: prophase, metaphase, anaphase, telophase",
+                    "I understand significance of mitosis (growth, repair, asexual reproduction)",
+                    "I understand significance of meiosis (haploid gametes, genetic variation)",
+                    "I can explain crossing over and independent assortment",
+                    "I know how cells specialize (erythrocytes, neutrophils, sperm, palisade cells)",
+                    "I understand stem cells and their therapeutic uses"
+                ]
+            },
+            "Module 3: Exchange and Transport": {
+                "3.1.1 Exchange Surfaces": [
+                    "I can calculate and explain surface area to volume ratios",
+                    "I know features of efficient exchange: large SA, thin layers, good blood supply",
+                    "I know structure of gas exchange system: trachea, bronchi, bronchioles, alveoli",
+                    "I understand functions of cartilage, ciliated epithelium, goblet cells, smooth muscle, elastic fibres",
+                    "I can explain ventilation mechanism: inspiration and expiration",
+                    "I understand roles of intercostal muscles and diaphragm",
+                    "I can interpret spirometer traces and calculate tidal volume, vital capacity, breathing rate",
+                    "I can explain ventilation in fish (countercurrent) and insects (tracheal system)"
+                ],
+                "3.1.2 Transport in Animals": [
+                    "I understand single, double, open, and closed circulatory systems",
+                    "I know structure and function of arteries, veins, and capillaries",
+                    "I can explain tissue fluid formation (hydrostatic and oncotic pressure)",
+                    "I know structure of mammalian heart and can label diagrams",
+                    "I can explain cardiac cycle: valve action and pressure changes",
+                    "I understand heart coordination: SAN, AVN, Purkyne tissue",
+                    "I can interpret ECG traces (normal and abnormal)",
+                    "I understand haemoglobin oxygen transport and Bohr effect",
+                    "I can interpret oxygen dissociation curves"
+                ],
+                "3.1.3 Transport in Plants": [
+                    "I know structure and function of xylem vessels and phloem sieve tubes",
+                    "I can explain transpiration and factors affecting transpiration rate",
+                    "I can use a potometer to measure transpiration",
+                    "I understand water transport: water potential, cohesion, adhesion, transpiration stream",
+                    "I know adaptations of xerophytes and hydrophytes",
+                    "I can explain translocation: active loading and unloading"
+                ]
+            },
+            "Module 4: Biodiversity, Evolution & Disease": {
+                "4.1.1 Disease & Immunity": [
+                    "I know pathogen examples: bacteria (TB, meningitis), viruses (HIV, flu), protoctista (malaria), fungi",
+                    "I understand direct and indirect disease transmission",
+                    "I know primary defences: skin, blood clotting, inflammation, mucous membranes",
+                    "I can explain phagocytosis: lysosomes and opsonins",
+                    "I understand specific immune response: B and T lymphocytes",
+                    "I can explain clonal selection and clonal expansion",
+                    "I understand roles of plasma cells, T helper/killer cells, memory cells",
+                    "I know antibody structure and function (opsonins, agglutinins, anti-toxins)",
+                    "I can compare primary and secondary immune responses",
+                    "I understand active/passive and natural/artificial immunity",
+                    "I can explain vaccination principles and herd immunity",
+                    "I understand antibiotic resistance (MRSA, C. difficile)"
+                ],
+                "4.2.1 Biodiversity": [
+                    "I understand habitat, species, and genetic biodiversity",
+                    "I can use random and non-random sampling techniques",
+                    "I can calculate species richness and evenness",
+                    "I can use Simpson's Index: D = 1 – (Σ(n/N)²)",
+                    "I understand factors affecting biodiversity",
+                    "I know reasons for conservation: ecological, economic, aesthetic",
+                    "I understand in situ (reserves) and ex situ (seed banks, zoos) conservation"
+                ],
+                "4.2.2 Classification & Evolution": [
+                    "I know taxonomic hierarchy: kingdom, phylum, class, order, family, genus, species",
+                    "I understand three domains and binomial naming",
+                    "I can explain evolution evidence: fossils, DNA, molecular",
+                    "I understand natural selection: variation, selection pressure, reproductive success",
+                    "I can explain adaptations: anatomical, physiological, behavioural",
+                    "I understand evolution of antibiotic and pesticide resistance"
+                ]
+            },
+            "Module 5: Communication, Homeostasis & Energy": {
+                "5.1 Homeostasis & Communication": [
+                    "I understand negative and positive feedback",
+                    "I can explain thermoregulation in endotherms (hypothalamus, skin, muscles)",
+                    "I know liver structure and functions (glycogen storage, detoxification, urea formation)",
+                    "I know kidney and nephron structure",
+                    "I can explain ultrafiltration, selective reabsorption, urine production",
+                    "I understand osmoregulation: osmoreceptors, ADH, collecting ducts",
+                    "I understand kidney failure treatments: dialysis and transplants",
+                    "I understand action potentials and resting potential",
+                    "I can explain action potential transmission in myelinated neurones",
+                    "I know synapse structure and neurotransmitter action",
+                    "I understand adrenal gland structure and functions",
+                    "I can explain blood glucose regulation: insulin and glucagon",
+                    "I understand Type 1 and Type 2 diabetes and treatments"
+                ],
+                "5.2 Photosynthesis": [
+                    "I know chloroplast structure and sites of light-dependent/independent reactions",
+                    "I can separate photosynthetic pigments using chromatography",
+                    "I understand light-dependent stage: ATP and reduced NADP production",
+                    "I understand cyclic and non-cyclic photophosphorylation",
+                    "I understand Calvin cycle: CO₂ fixation, RuBP, RuBisCO, GP, TP",
+                    "I can explain limiting factors: light, CO₂, temperature",
+                    "I can investigate factors affecting photosynthesis rate"
+                ],
+                "5.3 Respiration": [
+                    "I know mitochondria structure",
+                    "I can explain glycolysis: glucose → pyruvate (ATP, reduced NAD)",
+                    "I can explain link reaction: pyruvate → acetyl CoA",
+                    "I can explain Krebs cycle: oxidation, CO₂, ATP, reduced NAD/FAD",
+                    "I understand oxidative phosphorylation: electron transport, chemiosmotic theory",
+                    "I can explain anaerobic respiration: lactate (mammals), ethanol (yeast)",
+                    "I can calculate respiratory quotient: RQ = CO₂ produced ÷ O₂ consumed"
+                ]
+            },
+            "Module 6: Genetics, Evolution & Ecosystems": {
+                "6.1 Genetics": [
+                    "I understand gene mutations: substitution, insertion, deletion",
+                    "I understand gene expression control: transcription factors, mRNA splicing",
+                    "I know Hox genes role in body plan development",
+                    "I can use genetic diagrams for monohybrid and dihybrid inheritance",
+                    "I can use diagrams for sex linkage, codominance, multiple alleles",
+                    "I can explain and identify linkage and epistasis",
+                    "I can use chi-squared test for genetic crosses",
+                    "I understand stabilising and directional selection",
+                    "I can use Hardy-Weinberg principle to calculate allele frequencies",
+                    "I understand allopatric and sympatric speciation"
+                ],
+                "6.2 Manipulating Genomes": [
+                    "I understand DNA sequencing and genome comparisons",
+                    "I understand DNA profiling and PCR",
+                    "I can use electrophoresis to separate DNA",
+                    "I understand genetic engineering: restriction enzymes, plasmids, DNA ligase",
+                    "I can discuss ethical issues of genetic modification",
+                    "I understand gene therapy: somatic vs germ line"
+                ],
+                "6.3 Biotechnology & Ecosystems": [
+                    "I understand natural and artificial cloning in plants (micropropagation, tissue culture)",
+                    "I understand artificial cloning in animals (embryo twinning, SCNT)",
+                    "I know microorganism uses: brewing, baking, antibiotics",
+                    "I can culture microorganisms using aseptic techniques",
+                    "I understand batch and continuous fermentation",
+                    "I know bacterial growth curve: lag, log, stationary, death",
+                    "I understand immobilised enzymes and uses",
+                    "I can calculate biomass transfer efficiency",
+                    "I understand nitrogen cycle: nitrification, fixation, denitrification",
+                    "I understand carbon cycle: photosynthesis, respiration, decomposition",
+                    "I can explain primary succession: pioneer to climax community",
+                    "I understand limiting factors and carrying capacity",
+                    "I understand predator-prey relationships",
+                    "I know conservation reasons: ecological, economic, ethical",
+                    "I can explain sustainable resource management"
+                ]
+            }
+        };
+
+        let stateData = {};
+
+        function init() {
+            loadState();
+            renderModules();
+            updateStats();
+        }
+
+        function renderModules() {
+            const container = document.getElementById('modules');
+            container.innerHTML = '';
+            
+            Object.keys(data).forEach((moduleName, moduleIndex) => {
+                const moduleDiv = document.createElement('div');
+                moduleDiv.className = 'module';
+                moduleDiv.innerHTML = `
+                    <div class="module-header" onclick="toggleModule(${moduleIndex})">
+                        <div class="module-title">
+                            <span class="toggle-icon" id="icon-${moduleIndex}">▼</span>
+                            <span>${moduleName}</span>
+                        </div>
+                        <div class="module-stats">
+                            <span class="module-stat stat-complete" id="mod-complete-${moduleIndex}">0</span>
+                            <span class="module-stat stat-practice" id="mod-practice-${moduleIndex}">0</span>
+                            <span class="module-stat stat-review" id="mod-review-${moduleIndex}">0</span>
+                        </div>
+                    </div>
+                    <div class="module-content" id="content-${moduleIndex}">
+                        ${renderTopics(data[moduleName], moduleIndex)}
+                    </div>
+                `;
+                container.appendChild(moduleDiv);
+            });
+        }
+
+        function renderTopics(topics, moduleIndex) {
+            let html = '';
+            Object.keys(topics).forEach((topicName, topicIndex) => {
+                html += `<div class="topic">
+                    <div class="topic-title">${topicName}</div>`;
+                topics[topicName].forEach((statement, stmtIndex) => {
+                    const id = `${moduleIndex}-${topicIndex}-${stmtIndex}`;
+                    const state = stateData[id] || 'none';
+                    html += `
+                        <div class="statement ${state}" id="stmt-${id}">
+                            <div class="statement-text">${statement}</div>
+                            <div class="status-btns">
+                                <button class="status-btn ${state === 'complete' ? 'active-complete' : ''}" 
+                                    onclick="setState('${id}', 'complete')">✅</button>
+                                <button class="status-btn ${state === 'practice' ? 'active-practice' : ''}" 
+                                    onclick="setState('${id}', 'practice')">⚠️</button>
+                                <button class="status-btn ${state === 'review' ? 'active-review' : ''}" 
+                                    onclick="setState('${id}', 'review')">❌</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            });
+            return html;
+        }
+
+        function toggleModule(index) {
+            const content = document.getElementById('content-' + index);
+            const icon = document.getElementById('icon-' + index);
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.classList.remove('open');
+            } else {
+                content.classList.add('open');
+                icon.classList.add('open');
+            }
+        }
+
+        function setState(id, status) {
+            if (stateData[id] === status) {
+                stateData[id] = 'none';
+            } else {
+                stateData[id] = status;
+            }
+            
+            saveState();
+            
+            const stmt = document.getElementById('stmt-' + id);
+            stmt.className = 'statement ' + stateData[id];
+            
+            const btns = stmt.querySelectorAll('.status-btn');
+            btns[0].className = 'status-btn' + (stateData[id] === 'complete' ? ' active-complete' : '');
+            btns[1].className = 'status-btn' + (stateData[id] === 'practice' ? ' active-practice' : '');
+            btns[2].className = 'status-btn' + (stateData[id] === 'review' ? ' active-review' : '');
+            
+            updateStats();
+        }
+
+        function updateStats() {
+            let complete = 0, practice = 0, review = 0, total = 0;
+            
+            Object.keys(data).forEach((moduleName, moduleIndex) => {
+                let modComplete = 0, modPractice = 0, modReview = 0;
+                
+                Object.keys(data[moduleName]).forEach((topicName, topicIndex) => {
+                    data[moduleName][topicName].forEach((stmt, stmtIndex) => {
+                        const id = `${moduleIndex}-${topicIndex}-${stmtIndex}`;
+                        const state = stateData[id] || 'none';
+                        total++;
+                        
+                        if (state === 'complete') { complete++; modComplete++; }
+                        else if (state === 'practice') { practice++; modPractice++; }
+                        else if (state === 'review') { review++; modReview++; }
+                    });
+                });
+                
+                document.getElementById('mod-complete-' + moduleIndex).textContent = modComplete;
+                document.getElementById('mod-practice-' + moduleIndex).textContent = modPractice;
+                document.getElementById('mod-review-' + moduleIndex).textContent = modReview;
+            });
+            
+            const notStarted = total - complete - practice - review;
+            const percent = Math.round((complete / total) * 100);
+            
+            document.getElementById('completeCount').textContent = complete;
+            document.getElementById('practiceCount').textContent = practice;
+            document.getElementById('reviewCount').textContent = review;
+            document.getElementById('notStartedCount').textContent = notStarted;
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressBar').textContent = percent + '%';
+        }
+
+        function expandAll() {
+            Object.keys(data).forEach((_, index) => {
+                document.getElementById('content-' + index).classList.add('open');
+                document.getElementById('icon-' + index).classList.add('open');
+            });
+        }
+
+        function collapseAll() {
+            Object.keys(data).forEach((_, index) => {
+                document.getElementById('content-' + index).classList.remove('open');
+                document.getElementById('icon-' + index).classList.remove('open');
+            });
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem('ocrBioTrackerMobile', JSON.stringify(stateData));
+            } catch (e) {
+                console.error('Save failed:', e);
+            }
+        }
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem('ocrBioTrackerMobile');
+                if (saved) {
+                    stateData = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error('Load failed:', e);
+                stateData = {};
+            }
+        }
+
+        function exportData() {
+            const exportObj = {
+                date: new Date().toISOString(),
+                name: prompt('Your name (optional):') || 'Student',
+                data: stateData
+            };
+            
+            const blob = new Blob([JSON.stringify(exportObj, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'biology_progress_' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            
+            alert('Progress exported! Save this file to backup your data.');
+        }
+
+        function resetAll() {
+            if (confirm('Reset ALL progress? This cannot be undone!')) {
+                stateData = {};
+                saveState();
+                renderModules();
+                updateStats();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
